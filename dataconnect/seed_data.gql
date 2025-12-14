@@ -1,0 +1,44 @@
+mutation SeedDatabase @auth(level: PUBLIC, insecureReason: "This operation is intended for initial data setup and does not require authentication") {
+  user_insertMany(data: [
+    {
+      id: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      createdAt: "2024-04-03T00:00:00Z",
+      email: "user1@example.com",
+      username: "user1"
+    },
+    {
+      id: "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+      createdAt: "2024-04-03T00:00:00Z",
+      email: "user2@example.com",
+      username: "user2"
+    }
+  ])
+  photo_insertMany(data: [
+    {
+      id: "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+      userId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      caption: "Sample photo 1",
+      createdAt: "2024-04-03T00:00:00Z",
+      imageUrl: "http://example.com/image1.jpg"
+    },
+    {
+      id: "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+      userId: "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+      caption: "Sample photo 2",
+      createdAt: "2024-04-03T00:00:00Z",
+      imageUrl: "http://example.com/image2.jpg"
+    }
+  ])
+  like_insertMany(data: [
+    {
+      userId: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+      photoId: "c3d4e5f6-a7b8-9012-3456-7890abcdef01",
+      createdAt: "2024-04-03T00:00:00Z"
+    },
+    {
+      userId: "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
+      photoId: "d4e5f6a7-b8c9-0123-4567-890abcdef012",
+      createdAt: "2024-04-03T00:00:00Z"
+    }
+  ])
+}

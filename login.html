@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photographer Login</title>
+<style>
+:root{
+  --gold: #f7a800;
+}
+* { box-sizing: border-box; }
+body {
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:url('assets/src/authbg.jpg') no-repeat center center/cover;
+  background-size:cover;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:#fff;
+}
+
+.auth-box {
+  background: rgba(0,0,0,0.75);
+  padding:40px 30px;
+  border-radius:14px;
+  width:350px;
+  text-align:center;
+  box-shadow:0 12px 35px rgba(0,0,0,0.7);
+}
+
+.auth-box h2 {
+  margin-bottom:25px;
+  font-weight:600;
+  font-size:1.8rem;
+  color:var(--gold);
+}
+
+input {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+  border:none;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+#mainBtn { background:var(--gold); color:#111; }
+#mainBtn:hover { background:#ffba00; }
+
+.google-btn { 
+  background:#fff; 
+  color:#111; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  gap:10px;
+  margin-top:12px;
+}
+.google-btn img { width:22px; height:22px; }
+
+.signup-btn { 
+  background:transparent; 
+  border:2px solid var(--gold); 
+  color:var(--gold); 
+  margin-top:15px; 
+}
+.signup-btn:hover { background:var(--gold); color:#111; }
+
+.forgot-box {
+  margin-top:15px;
+  padding:8px 12px;
+  border-radius:6px;
+  background: rgba(255,255,255,0.1);
+  cursor:pointer;
+  transition:0.2s;
+}
+.forgot-box:hover { background: rgba(247,168,0,0.2); }
+
+@media(max-width:400px){
+  .auth-box { width:90%; padding:30px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="auth-box">
+  <h2>Sign In</h2>
+  <input type="email" placeholder="Email" id="email">
+  <input type="password" placeholder="Password" id="password">
+
+  <button id="mainBtn">Sign In</button>
+
+  <button class="google-btn" id="googleBtn">
+    <img src="assets/src/google.png" alt="Google Icon"> Continue with Google
+  </button>
+
+  <button class="signup-btn" id="signUpBtn">Sign Up</button>
+
+  <div class="forgot-box" id="forgotBox">Forgot Password?</div>
+</div>
+
+<script type="module">
+import { auth, provider } from "./firebase.js";
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* Persistent login check */
+onAuthStateChanged(auth, user => {
+  if(user){
+    window.location.href = "index.html"; 
+  }
+});
+
+/* Email/password login */
+document.getElementById("mainBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  if(!email || !password) return alert("Fill all fields");
+
+  try {
+    await signInWithEmailAndPassword(auth,email,password);
+    window.location.href = "index.html";
+  } catch(e){
+    alert(e.message);
+  }
+});
+
+/* Google login */
+document.getElementById("googleBtn").addEventListener("click", async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const isNewUser = result._tokenResponse.isNewUser;
+
+    if(isNewUser){
+      window.location.href = "profile-setup.html";
+    } else {
+      window.location.href = "index.html";
+    }
+  } catch(e){
+    console.error(e);
+    alert("Google login failed. Make sure localhost or your domain is added in Firebase Auth > Authorized domains.");
+  }
+});
+
+/* Sign Up button */
+document.getElementById("signUpBtn").addEventListener("click",()=>window.location.href="signup.html");
+
+/* Forgot password */
+document.getElementById("forgotBox").addEventListener("click", async () => {
+  const email = document.getElementById("email").value.trim();
+  if(!email) return alert("Enter your email first!");
+  try {
+    await sendPasswordResetEmail(auth,email);
+    alert("Password reset email sent!");
+  } catch(e){ alert(e.message); }
+});
+</script>
+
+</body>
+</html>

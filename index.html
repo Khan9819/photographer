@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photographer Home</title>
+<link rel="stylesheet" href="indexstyle.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-frame">
+    <img id="homeLogo" src="assets/src/logo.png" alt="Logo">
+    <div class="brand-text">
+      <div id="homeName" class="brand-name">Brand Name</div>
+      <div id="homeSlogan" class="slogan"></div>
+    </div>
+  </div>
+
+  <div class="contact-frame">
+    <p id="homeEmail">Email:</p>
+    <p id="homePhone">Phone:</p>
+    <p id="homeAddress">Location:</p>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-box">
+    <h1>Book a Session</h1>
+    <p id="homeDescription">
+      Professional photography services tailored for you
+    </p>
+    <a id="bookNow" href="#" class="cta-button">Contact / WhatsApp</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Follow the photographer:</p>
+  <p>
+    <a id="instagramLink" href="#" target="_blank">Instagram</a> |
+    <a id="facebookLink" href="#" target="_blank">Facebook</a> |
+    <a id="tiktokLink" href="#" target="_blank">TikTok</a> |
+    <a id="linkedinLink" href="#" target="_blank">LinkedIn</a>
+  </p>
+</footer>
+
+<!-- FLOATING ACCOUNT UI -->
+<div class="account-ui">
+  <div class="account-actions" id="accountActions">
+    <div class="account-card" id="logoutBtn">Log out</div>
+    <div class="account-card delete" id="deleteAccountBtn">Delete account</div>
+  </div>
+  <div class="account-toggle" id="toggleBtn"><span></span></div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+    <p id="modalMessage"></p>
+    <div class="modal-buttons">
+      <button id="cancelBtn">Cancel</button>
+      <button id="confirmBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- REAUTH MODAL -->
+<div class="modal" id="reauthModal">
+  <div class="modal-content">
+    <h3>Thibitisha Utambulisho</h3>
+    <p>Ingiza password yako au chagua Google</p>
+    <input
+      type="password"
+      id="reauthPassword"
+      placeholder="Password"
+      style="width:100%;padding:10px;border-radius:8px;border:none;margin:10px 0;"
+    >
+    <div class="modal-buttons">
+      <button id="reauthPasswordBtn">Thibitisha</button>
+      <button id="reauthGoogleBtn">Google</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db, provider } from "./firebase.js";
+import {
+  onAuthStateChanged,
+  signOut,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  doc,
+  getDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* ================= DOM ELEMENTS ================= */
+const toggleBtn = document.getElementById("toggleBtn");
+const accountActions = document.getElementById("accountActions");
+
+const homeLogo = document.getElementById("homeLogo");
+const homeName = document.getElementById("homeName");
+const homeSlogan = document.getElementById("homeSlogan");
+const homeEmail = document.getElementById("homeEmail");
+const homePhone = document.getElementById("homePhone");
+const homeAddress = document.getElementById("homeAddress");
+const homeDescription = document.getElementById("homeDescription");
+
+const instagramLink = document.getElementById("instagramLink");
+const facebookLink = document.getElementById("facebookLink");
+const tiktokLink = document.getElementById("tiktokLink");
+const linkedinLink = document.getElementById("linkedinLink");
+
+const bookNow = document.getElementById("bookNow");
+
+const logoutBtn = document.getElementById("logoutBtn");
+const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+/* ================= TOGGLE ================= */
+toggleBtn.onclick = () => {
+  accountActions.classList.toggle("show");
+};
+
+/* ================= CONFIRM MODAL ================= */
+const confirmModal = document.getElementById("confirmModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalMessage = document.getElementById("modalMessage");
+const confirmBtn = document.getElementById("confirmBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+function showConfirm(title, message) {
+  return new Promise(resolve => {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    confirmModal.style.display = "flex";
+
+    confirmBtn.onclick = () => {
+      confirmModal.style.display = "none";
+      resolve(true);
+    };
+    cancelBtn.onclick = () => {
+      confirmModal.style.display = "none";
+      resolve(false);
+    };
+  });
+}
+
+/* ================= REAUTH MODAL ================= */
+const reauthModal = document.getElementById("reauthModal");
+const reauthPassword = document.getElementById("reauthPassword");
+const reauthPasswordBtn = document.getElementById("reauthPasswordBtn");
+const reauthGoogleBtn = document.getElementById("reauthGoogleBtn");
+
+function showReauth() {
+  return new Promise(resolve => {
+    reauthModal.style.display = "flex";
+
+    reauthPasswordBtn.onclick = () => {
+      reauthModal.style.display = "none";
+      resolve({ type: "password", value: reauthPassword.value });
+    };
+
+    reauthGoogleBtn.onclick = () => {
+      reauthModal.style.display = "none";
+      resolve({ type: "google" });
+    };
+  });
+}
+
+/* ================= AUTH + FETCH PROFILE ================= */
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "photographers", user.uid));
+
+  if (!snap.exists()) {
+    window.location.href = "portfolio-setup.html";
+    return;
+  }
+
+  const d = snap.data();
+
+  homeLogo.src = d.logoURL || "assets/src/logo.png";
+  homeName.textContent = d.companyName || "Brand Name";
+  homeSlogan.textContent = d.slogan || "";
+  homeEmail.textContent = "Email: " + (d.companyEmail || "-");
+  homePhone.textContent = "Phone: " + (d.phone || "-");
+  homeAddress.textContent = "Location: " + (d.address || "-");
+  homeDescription.textContent =
+    d.description || "Professional photography services.";
+
+  instagramLink.href = d.instagram || "#";
+  facebookLink.href = d.facebook || "#";
+  tiktokLink.href = d.tiktok || "#";
+  linkedinLink.href = d.linkedin || "#";
+
+  if (d.phone) {
+    const phone = d.phone.replace(/\D/g, "");
+    bookNow.href =
+      `https://wa.me/${phone}?text=Hello%20${encodeURIComponent(d.companyName || "")}`;
+  }
+});
+
+/* ================= LOGOUT ================= */
+logoutBtn.onclick = async () => {
+  if (await showConfirm("Log out", "Unataka kutoka?")) {
+    await signOut(auth);
+    window.location.href = "login.html";
+  }
+};
+
+/* ================= DELETE ACCOUNT ================= */
+deleteAccountBtn.onclick = async () => {
+  if (!(await showConfirm("Delete Account", "Hatua hii hairudishwi."))) return;
+
+  const user = auth.currentUser;
+
+  try {
+    if (user.providerData[0].providerId === "password") {
+      const res = await showReauth();
+      if (res.type === "password") {
+        const cred = EmailAuthProvider.credential(user.email, res.value);
+        await reauthenticateWithCredential(user, cred);
+      } else {
+        await reauthenticateWithPopup(user, provider);
+      }
+    }
+
+    await deleteDoc(doc(db, "photographers", user.uid));
+    await deleteUser(user);
+
+    alert("Account imefutwa kabisa.");
+    window.location.href = "signup.html";
+  } catch (e) {
+    alert(e.message);
+  }
+};
+</script>
+
+</body>
+</html>

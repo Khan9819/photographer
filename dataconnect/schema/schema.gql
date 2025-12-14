@@ -1,0 +1,20 @@
+type User @table {
+  username: String!
+  email: String!
+  createdAt: Timestamp!
+  profilePictureUrl: String
+}
+
+type Photo @table {
+  user: User!
+  imageUrl: String!
+  caption: String!
+  createdAt: Timestamp!
+  tags: [String]
+}
+
+type Like @table(key: ["user", "photo"]) {
+  user: User!
+  photo: Photo!
+  createdAt: Timestamp!
+}

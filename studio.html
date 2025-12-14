@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Shoot</title>
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #111;
+  color: #eee;
+}
+
+/* Fullscreen background with overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: url('assets/src/bg4.jpg') center center / cover no-repeat fixed;
+  z-index: 0;
+  pointer-events: none;
+}
+body::after {
+  content: "";
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.5); /* cinematic black overlay */
+  z-index: 1;
+  pointer-events: none;
+}
+
+header {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 32px;
+  font-weight: 500;
+  position: relative;
+  z-index: 3;
+}
+
+.gallery-container {
+  max-width: 1200px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 3;
+}
+
+/* Gallery cards */
+.item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+.item img:hover {
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+
+/* Captions */
+.item .caption {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.5);
+  padding: 12px;
+  text-align: center;
+  color: #fff;
+  font-weight: 400;
+}
+
+/* Lightbox */
+#lightbox {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.88);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+#lightbox img {
+  max-width: 85%; max-height: 85%;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+#lightbox .close, #lightbox .next, #lightbox .prev {
+  color: #fff;
+  font-size: 42px;
+  cursor: pointer;
+  position: absolute;
+}
+#lightbox .close { top: 24px; right: 32px; }
+#lightbox .prev { left: 30px; top: 50%; transform: translateY(-50%); }
+#lightbox .next { right: 30px; top: 50%; transform: translateY(-50%); }
+</style>
+</head>
+<body>
+
+<div class="camera-bg"></div>
+
+<header>Studio Shoot</header>
+
+<section class="gallery-container">
+  <div class="item">
+    <img src="https://picsum.photos/id/1043/800/600" alt="Studio Photo 1">
+  </div>
+  <div class="item">
+    <img src="https://picsum.photos/id/1044/800/600" alt="Studio Photo 2">
+  </div>
+  <div class="item">
+    <img src="https://picsum.photos/id/1045/800/600" alt="Studio Photo 3">
+  </div>
+  <div class="item">
+    <img src="https://picsum.photos/id/1046/800/600" alt="Studio Photo 4">
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <span class="close">&times;</span>
+  <span class="prev">&#10094;</span>
+  <img src="" alt="Lightbox Image">
+  <span class="next">&#10095;</span>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const galleryImages = Array.from(document.querySelectorAll('.item img'));
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = lightbox.querySelector('img');
+  let currentIndex = 0;
+
+  function openLightbox(i) {
+    currentIndex = i;
+    lightboxImg.src = galleryImages[currentIndex].src;
+    lightbox.style.display = "flex";
+  }
+  function closeLightbox() { lightbox.style.display = "none"; }
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % galleryImages.length;
+    lightboxImg.src = galleryImages[currentIndex].src;
+  }
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    lightboxImg.src = galleryImages[currentIndex].src;
+  }
+
+  galleryImages.forEach((img,i)=> img.addEventListener('click',()=>openLightbox(i)));
+  lightbox.querySelector('.close').addEventListener('click', closeLightbox);
+  lightbox.querySelector('.next').addEventListener('click', nextImage);
+  lightbox.querySelector('.prev').addEventListener('click', prevImage);
+
+  document.addEventListener('keydown', e => {
+    if(e.key==="Escape") closeLightbox();
+    if(e.key==="ArrowRight") nextImage();
+    if(e.key==="ArrowLeft") prevImage();
+  });
+});
+</script>
+
+</body>
+</html>

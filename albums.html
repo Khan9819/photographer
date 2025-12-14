@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khan Malve Brand - Photo Albums</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Branding / Header */
+    .branding {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #fff;
+      border-bottom: 1px solid #ececec;
+    }
+    .branding .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .branding .logo img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .branding .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .branding .slogan {
+      font-size: 12px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .branding .contact {
+      font-size: 12px;
+      color: #333;
+      text-align: right;
+    }
+    .branding .contact p { margin: 2px 0; }
+
+    /* Hero section */
+    .hero {
+      background: linear-gradient(120deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      padding: 60px 15px;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .hero p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+    .hero .cta-button {
+      display: inline-block;
+      padding: 8px 20px;
+      background-color: #ff6b6b;
+      color: white;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    .hero .cta-button:hover {
+      background-color: #ff4757;
+    }
+
+    /* Albums layout */
+    .albums {
+      max-width: 1100px;
+      margin: -40px auto 50px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .album-card {
+      background: white;
+      width: 280px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: black;
+    }
+    .album-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+    .album-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .album-info {
+      padding: 16px;
+    }
+    .album-info h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .album-info p {
+      margin-top: 6px;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    /* Footer */
+    footer {
+      background: #222;
+      color: white;
+      padding: 30px 15px;
+      text-align: center;
+      font-size: 12px;
+    }
+    footer a {
+      color: #ff6b6b;
+      text-decoration: none;
+      margin: 0 6px;
+      transition: 0.3s;
+    }
+    footer a:hover {
+      color: #ffa7a7;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 13px; }
+      .albums { flex-direction: column; align-items: center; gap: 25px; }
+      .branding { flex-direction: column; align-items: flex-start; text-align: left; }
+      .branding .contact { text-align: left; margin-top: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="branding">
+  <div class="logo-brand">
+    <img src="assets/src/logo.png" alt="Khan Malove Brand Logo" class="logo-img">
+    <div class="brand-text">
+      <div class="brand-name">Khan Malove Brand</div>
+      <div class="slogan">Quality is our Priority</div>
+    </div>
+  </div>
+  <div class="contact">
+    <p>Email: twahanyanza@gmail.com</p>
+    <p>Phone: +255 699 529 291 | +255 652 187 539</p>
+    <p>Location: Magomeni Mikumi</p>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <h1>Khan Malove Brand</h1>
+  <p>Quality is our Priority.</p>
+  <a href="booking.html" class="cta-button">Book Now</a>
+</section>
+
+<!-- Albums Section -->
+<section class="albums">
+  <a href="wedding.html" class="album-card">
+    <img src="https://picsum.photos/id/1012/800/600" alt="Wedding Album">
+    <div class="album-info">
+      <h3>Wedding Gallery</h3>
+      <p>Beautiful wedding moments & love stories.</p>
+    </div>
+  </a>
+
+  <a href="outdoor.html" class="album-card">
+    <img src="https://picsum.photos/id/1026/800/600" alt="Outdoor Portraits">
+    <div class="album-info">
+      <h3>Outdoor Portraits</h3>
+      <p>Nature + portrait creativity in the wild.</p>
+    </div>
+  </a>
+
+  <a href="studio.html" class="album-card">
+    <img src="https://picsum.photos/id/1044/800/600" alt="Studio Shoot">
+    <div class="album-info">
+      <h3>Studio Shoot</h3>
+      <p>Controlled lighting & professional setups.</p>
+    </div>
+  </a>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>Contact us: twahanyanza@gmail.com | +255 699 529 291 | +255 652 187 539</p>
+  <p>Location: Magomeni Mikumi</p>
+  <p>
+    Follow us:
+    <a href="#" target="_blank">Facebook</a> |
+    <a href="#" target="_blank">Instagram</a> |
+    <a href="#" target="_blank">Twitter</a>
+  </p>
+  <p>&copy; 2025 Khan Malve Brand. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
