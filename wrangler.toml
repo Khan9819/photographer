@@ -1,0 +1,8 @@
+name = "pixiest-uploader"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Huu ndio muunganisho kati ya Worker na R2 Bucket yako
+[[r2_buckets]]
+binding = "MY_BUCKET"             # Hili jina lisibadilike (linatumika kwenye kodi ya worker.js)
+bucket_name = "photographer2025"  # Hakikisha hili ni jina halisi la Bucket uliyounda R2
