@@ -32,7 +32,7 @@ export async function signInUser(email, password) {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    window.location.href = "dashboard.html"; // returning user
+    window.location.href = "photographerdata.html"; // returning user
   } catch (err) {
     console.error("SignIn error:", err);
     alert(cleanError(err.message));
@@ -50,7 +50,7 @@ export async function googleLogin() {
     if (isNewUser) {
       window.location.href = "profile-setup.html"; // new Google user
     } else {
-      window.location.href = "dashboard.html"; // returning Google user
+      window.location.href = "photographerdata.html"; // returning Google user
     }
   } catch (err) {
     console.error("Google login error:", err);

@@ -1,190 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up - Pixiest</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photographer Sign Up - Pixiest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+        body, html {
+            height: 100%; display: grid; place-items: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/src/authbg.jpg') no-repeat center/cover;
+            color: #fff;
+        }
 
-<style>
-* { box-sizing: border-box; margin:0; padding:0; font-family: 'Roboto', sans-serif; }
-body, html {
-  height: 100%;
-  width: 100%;
-  display: grid;
-  place-items: center;
-  background: url('assets/src/authbg.jpg') no-repeat center center/cover;
-  background-size: cover;
-  color: #fff;
-}
-.signup-box {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 15px 20px;
-  background: rgba(0,0,0,0.75);
-  padding: 50px 30px;
-  border-radius: 20px;
-  width: 400px;
-  max-width: 95%;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-  backdrop-filter: blur(12px);
-  color: #fff;
-  transition: transform 0.2s;
-}
-.signup-box:hover { transform: translateY(-5px); }
-.signup-box h2 { grid-column:1/-1; text-align:center; margin-bottom:25px; font-weight:700; }
-.signup-box input {
-  padding: 14px 12px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  width: 100%;
-  transition: all 0.25s ease;
-}
-.signup-box input:focus { background: rgba(255,255,255,0.12); box-shadow:0 0 8px #f7a800; }
-.signup-box button, .signup-box .google-btn {
-  grid-column: 1 / -1;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.signup-box button { background: #f7a800; color: #111; margin-top: 10px; }
-.signup-box button:hover { background: #ffba00; transform: translateY(-2px); }
-.signup-box .google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: #fff;
-  color: #111;
-  margin-top: 10px;
-}
-.signup-box .google-btn img { width: 22px; height: 22px; }
-.signup-box .google-btn:hover { background: #f0f0f0; }
-.signup-box a {
-  grid-column: 1/-1;
-  text-align: center;
-  color: #f7a800;
-  font-size: 14px;
-  text-decoration: none;
-  margin-top: 12px;
-}
-.signup-box a:hover { text-decoration: underline; }
+        .signup-box {
+            display: grid; grid-template-columns: 1fr; gap: 15px 20px;
+            background: rgba(0, 0, 0, 0.85); padding: 40px 30px; border-radius: 24px;
+            width: 500px; max-width: 95vw; backdrop-filter: blur(15px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
 
-/* ===== SUCCESS MODAL ===== */
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.75);
-  z-index:1000;
-  justify-content:center;
-  align-items:center;
-}
-.modal-content{
-  background: rgba(22,22,22,0.95);
-  padding:25px 30px;
-  border-radius:12px;
-  min-width:280px;
-  text-align:center;
-  color:#fff;
-  border:1px solid #f7a800;
-  box-shadow:0 14px 40px rgba(0,0,0,0.6);
-}
-.modal-content h3{ margin-top:0; color:#f7a800; }
-.modal-content p{ margin:15px 0; }
-.modal-buttons{ display:flex; justify-content:center; gap:12px; margin-top:18px; }
-.modal-buttons button{
-  padding:8px 16px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:600;
-  transition:0.2s;
-}
-#successBtn{ background:#f7a800; color:#111; }
-#successBtn:hover{ background:#ffba00; }
-</style>
+        @media(min-width: 600px) { .signup-box { grid-template-columns: repeat(2, 1fr); } }
+        .header-section { grid-column: 1/-1; text-align: center; margin-bottom: 10px; }
+        .header-section h2 { font-size: 28px; color: #f7a800; }
+        .signup-box input {
+            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08); color: #fff; outline: none;
+        }
+        .full { grid-column: 1/-1; }
+        #submitSignUp { background: #f7a800; color: #111; font-weight: 700; cursor: pointer; border: none; padding: 15px; border-radius: 12px; }
+        .google-btn { 
+            background: #fff; color: #111; display: flex; align-items: center; justify-content: center; 
+            gap: 12px; padding: 15px; border-radius: 12px; cursor: pointer; border: none; font-weight: 700;
+        }
+        .error-box { grid-column: 1/-1; background: #ff4d4d; color: white; padding: 12px; border-radius: 10px; display: none; text-align: center; }
+
+        /* MODAL LOADING SPINNER STYLE */
+        #loading {
+            display: none; 
+            position: fixed; /* Inafunika screen nzima */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); /* Inafanya screen iwe nyeusi kidogo */
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid rgba(247, 168, 0, 0.2);
+            border-top: 5px solid #f7a800;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="signup-box">
-  <h2>Create Account</h2>
-
-  <input type="text" id="firstName" placeholder="First Name">
-  <input type="text" id="lastName" placeholder="Last Name">
-  <input type="email" id="email" placeholder="Email">
-  <input type="tel" id="phone" placeholder="Phone Number">
-  <input type="password" id="password" placeholder="Password">
-  <input type="password" id="confirmPassword" placeholder="Confirm Password">
-
-  <button id="submitSignUp">Sign Up</button>
-  <div class="google-btn" id="googleBtn">
-    <img src="assets/src/google.png" alt="Google Icon"> Continue with Google
-  </div>
-  <a href="login.html">Already have an account? Sign In</a>
+<div id="loading">
+    <div class="spinner"></div>
+    <p>Tafadhali subiri...</p>
 </div>
 
-<!-- SUCCESS MODAL -->
-<div class="modal" id="successModal">
-  <div class="modal-content">
-    <h3>Sign Up Successful!</h3>
-    <p>Your account has been created successfully.</p>
-    <div class="modal-buttons">
-      <button id="successBtn">Go to Dashboard</button>
+<div class="signup-box">
+    <div class="header-section">
+        <h2>Join as Photographer</h2>
+        <p>Create your portfolio and start earning</p>
     </div>
-  </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <input id="firstName" placeholder="First Name" type="text">
+    <input id="lastName" placeholder="Last Name" type="text">
+    <input id="email" type="email" placeholder="Email Address" class="full">
+    <input id="phone" type="tel" placeholder="Phone Number" class="full">
+    <input id="password" type="password" placeholder="Password">
+    <input id="confirmPassword" type="password" placeholder="Confirm Password">
+
+    <button class="full" id="submitSignUp">Create Account</button>
+    
+    <div class="google-btn full" id="googleBtn">
+        <img src="assets/src/google.png" alt="" width="20"> Sign up with Google
+    </div>
+
+    <a class="full" href="login.html" style="text-align: center; color: #f7a800; text-decoration: none; font-size: 14px;">Already have an account? Sign In</a>
 </div>
 
 <script type="module">
-// Firebase imports
-import { auth } from "./firebase.js";
-import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { auth, db } from "./firebase.js";
+    import { 
+        createUserWithEmailAndPassword, 
+        updateProfile, 
+        GoogleAuthProvider, 
+        signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { 
+        doc, 
+        setDoc, 
+        serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const submitBtn = document.getElementById("submitSignUp");
-const successModal = document.getElementById("successModal");
-const successBtn = document.getElementById("successBtn");
+    const provider = new GoogleAuthProvider();
+    const errorBox = document.getElementById("errorBox");
+    const loading = document.getElementById("loading");
 
-submitBtn.addEventListener("click", async ()=>{
-  const firstName = document.getElementById("firstName").value.trim();
-  const lastName = document.getElementById("lastName").value.trim();
-  const fullName = firstName + " " + lastName;
-  const phone = document.getElementById("phone").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const confirm = document.getElementById("confirmPassword").value.trim();
+    function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.style.display = "block";
+        setTimeout(() => { errorBox.style.display = "none"; }, 5000);
+    }
 
-  if(!firstName || !lastName || !phone || !email || !password || !confirm){
-    return alert("Fill all fields");
-  }
-  if(password !== confirm){
-    return alert("Passwords do not match");
-  }
+    // Email Signup Logic
+    document.getElementById("submitSignUp").onclick = async () => {
+        const f = document.getElementById("firstName").value.trim();
+        const l = document.getElementById("lastName").value.trim();
+        const p = document.getElementById("phone").value.trim();
+        const e = document.getElementById("email").value.trim();
+        const pass = document.getElementById("password").value;
+        const c = document.getElementById("confirmPassword").value;
 
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth,email,password);
-    const user = userCredential.user;
-    await updateProfile(user,{displayName: fullName});
+        if (!f || !l || !p || !e || !pass || !c) return showError("Tafadhali jaza nafasi zote");
+        if (pass !== c) return showError("Password hazifanani");
 
-    // Show success modal instead of alert
-    successModal.style.display = 'flex';
-    successBtn.onclick = ()=> window.location.href="dashboard.html";
+        try {
+            loading.style.display = "flex"; // Inaonyesha spinner
+            const cred = await createUserWithEmailAndPassword(auth, e, pass);
+            await updateProfile(cred.user, { displayName: `${f} ${l}` });
 
-  } catch(error){
-    console.error(error);
-    alert(`Error: ${error.message}`);
-  }
-});
+            await setDoc(doc(db, "users", cred.user.uid), {
+                firstName: f, lastName: l, phone: p, email: e,
+                role: "photographer", setupComplete: false, createdAt: serverTimestamp()
+            });
+
+            // Tunatumia replace ili asiweze kubonyeza 'back' akarudi kwenye signup
+            window.location.replace("photographerdata.html");
+
+        } catch (err) {
+            loading.style.display = "none";
+            showError("Tatizo: " + err.message);
+        }
+    };
+
+    // Google Signup Logic
+    document.getElementById("googleBtn").onclick = async () => {
+        try {
+            loading.style.display = "flex"; // Inaonyesha spinner
+            const res = await signInWithPopup(auth, provider);
+            await setDoc(doc(db, "users", res.user.uid), {
+                displayName: res.user.displayName, email: res.user.email,
+                role: "photographer", setupComplete: false, createdAt: serverTimestamp()
+            }, { merge: true });
+
+            window.location.replace("photographerdata.html");
+        } catch (err) {
+            loading.style.display = "none";
+            showError("Google Sign-in imefeli.");
+        }
+    };
 </script>
-
 </body>
 </html>

@@ -1,170 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Photographer Login</title>
-<style>
-:root{
-  --gold: #f7a800;
-}
-* { box-sizing: border-box; }
-body {
-  margin:0;
-  font-family:'Poppins',sans-serif;
-  background:url('assets/src/authbg.jpg') no-repeat center center/cover;
-  background-size:cover;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  color:#fff;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Pixiest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-.auth-box {
-  background: rgba(0,0,0,0.75);
-  padding:40px 30px;
-  border-radius:14px;
-  width:350px;
-  text-align:center;
-  box-shadow:0 12px 35px rgba(0,0,0,0.7);
-}
+    <style>
+        /* Tumeshikilia style ile ile ya Grid ili muonekano uwe mmoja */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+        
+        body, html {
+            height: 100%; display: grid; place-items: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('assets/src/authbg.jpg') no-repeat center/cover;
+            color: #fff;
+        }
 
-.auth-box h2 {
-  margin-bottom:25px;
-  font-weight:600;
-  font-size:1.8rem;
-  color:var(--gold);
-}
+        .login-box {
+            display: grid;
+            grid-template-columns: 1fr; /* Kwa login tunatumia column moja zaidi */
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px 30px;
+            border-radius: 24px;
+            width: 400px; /* Upana mdogo kidogo kuliko signup */
+            max-width: 95vw;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-input {
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border-radius:8px;
-  border:none;
-}
+        .header-section { text-align: center; margin-bottom: 10px; }
+        .header-section h2 { font-size: 28px; color: #f7a800; }
+        .header-section p { color: #ccc; font-size: 14px; }
 
-button {
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.2s;
-}
+        .login-box input {
+            width: 100%; padding: 15px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08); color: #fff; outline: none;
+            font-size: 16px;
+        }
 
-#mainBtn { background:var(--gold); color:#111; }
-#mainBtn:hover { background:#ffba00; }
+        #loginBtn {
+            background: #f7a800; color: #111; font-weight: 700;
+            cursor: pointer; border: none; padding: 15px; border-radius: 12px;
+            transition: 0.3s; font-size: 16px;
+        }
 
-.google-btn { 
-  background:#fff; 
-  color:#111; 
-  display:flex; 
-  align-items:center; 
-  justify-content:center; 
-  gap:10px;
-  margin-top:12px;
-}
-.google-btn img { width:22px; height:22px; }
+        #loginBtn:hover { background: #ffb700; transform: translateY(-2px); }
 
-.signup-btn { 
-  background:transparent; 
-  border:2px solid var(--gold); 
-  color:var(--gold); 
-  margin-top:15px; 
-}
-.signup-btn:hover { background:var(--gold); color:#111; }
+        .google-btn { 
+            background: #fff; color: #111; display: flex; align-items: center; justify-content: center; 
+            gap: 12px; padding: 15px; border-radius: 12px; cursor: pointer; border: none; font-weight: 700;
+        }
 
-.forgot-box {
-  margin-top:15px;
-  padding:8px 12px;
-  border-radius:6px;
-  background: rgba(255,255,255,0.1);
-  cursor:pointer;
-  transition:0.2s;
-}
-.forgot-box:hover { background: rgba(247,168,0,0.2); }
-
-@media(max-width:400px){
-  .auth-box { width:90%; padding:30px 20px; }
-}
-</style>
+        .error-box { background: #ff4d4d; color: white; padding: 12px; border-radius: 10px; display: none; text-align: center; font-size: 14px; }
+        
+        a { text-align: center; color: #f7a800; text-decoration: none; font-size: 14px; margin-top: 5px; }
+        a:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
 
-<div class="auth-box">
-  <h2>Sign In</h2>
-  <input type="email" placeholder="Email" id="email">
-  <input type="password" placeholder="Password" id="password">
+<div class="login-box">
+    <div class="header-section">
+        <h2>Welcome Back</h2>
+        <p>Login to manage your portfolio</p>
+    </div>
 
-  <button id="mainBtn">Sign In</button>
+    <div class="error-box" id="errorBox"></div>
 
-  <button class="google-btn" id="googleBtn">
-    <img src="assets/src/google.png" alt="Google Icon"> Continue with Google
-  </button>
+    <input id="email" type="email" placeholder="Email Address">
+    <input id="password" type="password" placeholder="Password">
 
-  <button class="signup-btn" id="signUpBtn">Sign Up</button>
+    <button id="loginBtn">Sign In</button>
+    
+    <div class="google-btn" id="googleBtn">
+        <img src="assets/src/google.png" alt="" width="20"> Sign in with Google
+    </div>
 
-  <div class="forgot-box" id="forgotBox">Forgot Password?</div>
+    <a href="signup.html">Don't have an account? Sign Up</a>
 </div>
 
 <script type="module">
-import { auth, provider } from "./firebase.js";
-import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { auth, db } from "./firebase.js";
+    import { 
+        signInWithEmailAndPassword, 
+        GoogleAuthProvider, 
+        signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* Persistent login check */
-onAuthStateChanged(auth, user => {
-  if(user){
-    window.location.href = "index.html"; 
-  }
-});
+    const errorBox = document.getElementById("errorBox");
 
-/* Email/password login */
-document.getElementById("mainBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  if(!email || !password) return alert("Fill all fields");
-
-  try {
-    await signInWithEmailAndPassword(auth,email,password);
-    window.location.href = "index.html";
-  } catch(e){
-    alert(e.message);
-  }
-});
-
-/* Google login */
-document.getElementById("googleBtn").addEventListener("click", async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const isNewUser = result._tokenResponse.isNewUser;
-
-    if(isNewUser){
-      window.location.href = "profile-setup.html";
-    } else {
-      window.location.href = "index.html";
+    function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.style.display = "block";
+        setTimeout(() => { errorBox.style.display = "none"; }, 5000);
     }
-  } catch(e){
-    console.error(e);
-    alert("Google login failed. Make sure localhost or your domain is added in Firebase Auth > Authorized domains.");
-  }
-});
 
-/* Sign Up button */
-document.getElementById("signUpBtn").addEventListener("click",()=>window.location.href="signup.html");
+    // 1. Login kwa Email na Password
+    document.getElementById("loginBtn").onclick = async () => {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
 
-/* Forgot password */
-document.getElementById("forgotBox").addEventListener("click", async () => {
-  const email = document.getElementById("email").value.trim();
-  if(!email) return alert("Enter your email first!");
-  try {
-    await sendPasswordResetEmail(auth,email);
-    alert("Password reset email sent!");
-  } catch(e){ alert(e.message); }
-});
+        if (!email || !password) return showError("Tafadhali jaza sehemu zote");
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Baada ya login, kagua kama ni photographer au client ili kumpeleka sehemu sahihi
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            
+            if (userDoc.exists() && userDoc.data().role === "photographer") {
+                window.location.href = "index.html"; // Dashboard ya mpigapicha
+            } else {
+                window.location.href = "client-home.html"; // Kama ni mteja wa kawaida
+            }
+
+        } catch (error) {
+            showError("Email au Password siyo sahihi.");
+        }
+    };
+
+    // 2. Login kwa Google
+    document.getElementById("googleBtn").onclick = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const res = await signInWithPopup(auth, provider);
+            window.location.href = "index.html";
+        } catch (error) {
+            showError("Imeshindikana kuingia na Google.");
+        }
+    };
 </script>
 
 </body>
