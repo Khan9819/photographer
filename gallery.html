@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Pixiest Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #f7a800; 
+            --bg: #050505; 
+            --card: #111; 
+            --border-gold: rgba(247, 168, 0, 0.25); 
+            --danger: #ff4d4d;
+            --v-blue: #0084ff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        body { background-color: var(--bg); color: #fff; overflow-x: hidden; }
+
+        .admin-only { display: none; }
+
+        /* HOME BUTTON */
+        .home-btn { position: fixed; top: 30px; left: 25px; z-index: 6000; background: rgba(0,0,0,0.85); border: 1px solid var(--border-gold); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); text-decoration: none; }
+
+        /* TOAST & CUSTOM MODALS */
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 700; font-size: 13px; z-index: 20000; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* UPLOAD PROGRESS MODAL */
+        #uploadStatusModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 21000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .up-box { background: #111; border: 1px solid var(--border-gold); padding: 30px; border-radius: 25px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #upPercent { font-size: 32px; font-weight: 900; color: var(--primary); display: block; margin-bottom: 5px; font-family: 'Cinzel Decorative'; }
+        .progress-container { width: 100%; background: #222; height: 10px; border-radius: 10px; margin: 20px 0; overflow: hidden; border: 1px solid #333; }
+        .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), #fff); transition: width 0.2s ease; }
+        .upload-details { display: flex; justify-content: space-between; font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; }
+
+        /* MODALS */
+        .custom-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 15000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 20px; }
+        .modal-box { background: #111; border: 1px solid var(--border-gold); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
+        .modal-box input { width: 100%; padding: 15px; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; color: #fff; margin: 15px 0; outline: none; }
+        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .m-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; }
+        .btn-cancel { background: #222; color: #fff; }
+        .btn-action { background: var(--primary); color: #000; }
+        .btn-danger { background: var(--danger); color: #fff; }
+
+        /* NAVIGATION */
+        .settings-btn { position: fixed; top: 30px; right: 25px; z-index: 6000; background: rgba(0,0,0,0.85); border: 1px solid var(--border-gold); color: var(--primary); width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .side-panel { position: fixed; top: 0; right: -320px; width: 320px; height: 100%; background: rgba(8, 8, 8, 0.98); z-index: 7000; transition: 0.5s; padding: 40px 25px; border-left: 1px solid #1a1a1a; backdrop-filter: blur(20px); display: flex; flex-direction: column; }
+        .side-panel.active { right: 0; }
+        .nav-item { width: 100%; padding: 16px; background: transparent; border: none; border-bottom: 1px solid #1a1a1a; color: #ccc; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 15px; font-size: 14px; transition: 0.3s; text-decoration: none; }
+        .nav-divider { font-size: 10px; color: #444; letter-spacing: 2px; font-weight: 800; margin: 25px 0 10px 15px; text-transform: uppercase; }
+
+        .sidebar-upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 0; }
+        .up-card-sidebar { background: #1a1a1a; border: 1px solid var(--border-gold); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .up-card-sidebar i { font-size: 20px; margin-bottom: 8px; display: block; }
+        .up-card-sidebar span { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #888; }
+        .up-card-sidebar.pic i { color: var(--primary); }
+        .up-card-sidebar.vid i { color: var(--v-blue); }
+
+        /* HERO */
+        .hero { height: 85vh; width: 100%; position: relative; display: flex; align-items: flex-end; background-size: cover; background-position: center; transition: 0.8s ease-in-out; background-color: #000; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.8) 100%); }
+        .hero-header-flex { position: relative; z-index: 10; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 30px 40px 40px; }
+        .identity-block { flex: 1; }
+        .identity-block h1 { font-family: 'Cinzel Decorative', serif; font-size: clamp(1.5rem, 5vw, 3rem); line-height: 1.1; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+
+        /* MINI STATS */
+        .mini-stats-wrapper { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
+        .mini-card { background: rgba(0,0,0,0.6); border: 1px solid var(--border-gold); padding: 8px 12px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; min-width: 65px; backdrop-filter: blur(10px); text-decoration: none; }
+        .mini-card i { font-size: 14px; margin-bottom: 2px; }
+        .mini-card .val { font-size: 16px; font-weight: 800; color: #fff; line-height: 1; }
+        .mini-card .lab { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .handle-card { background: var(--primary); color: #000; width: 40px; height: 60px; border-radius: 12px; display: none; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .handle-card.video-handle { background: var(--v-blue); color: #fff; }
+
+        /* VIDEO SECTION - REVISED SIZE */
+        .section-label { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 3px; padding: 40px 15px 15px; display: flex; align-items: center; gap: 15px; }
+        .video-slider { display: flex; overflow-x: auto; gap: 15px; padding: 0 15px 20px; scrollbar-width: none; }
+        
+        .v-card { 
+            flex: 0 0 15%; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            position: relative; 
+            height: 250px; 
+            background: #000; 
+            border: 1px solid var(--border-gold); 
+        }
+        .v-card video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        
+        .empty-video-msg { width: 100%; padding: 40px 20px; text-align: center; background: rgba(255,255,255,0.03); border-radius: 15px; border: 1px dashed #333; margin: 0 15px; color: #666; font-size: 13px; }
+
+        /* PHOTO GRID */
+        .photo-grid.flexible { column-count: 3; column-gap: 12px; padding: 0 15px; }
+        .media-card { border-radius: 12px; overflow: hidden; background: #0a0a0a; margin-bottom: 12px; position: relative; cursor: pointer; }
+        .media-card img { width: 100%; display: block; transition: 0.5s; }
+        .action-dots { position: absolute; top: 10px; right: 10px; z-index: 50; background: rgba(0,0,0,0.7); color: var(--danger); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* LIGHTBOX */
+        #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        #lbImg { max-width: 95%; max-height: 85vh; border-radius: 8px; }
+        .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; border: none; background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; cursor: pointer; }
+
+        @media (max-width: 768px) { 
+            .photo-grid.flexible { column-count: 2; } 
+            .v-card { flex: 0 0 75%; height: 220px; } 
+            .hero-header-flex { padding: 0 20px 30px 20px; } 
+        }
+    </style>
+</head>
+<body>
+
+    <input type="file" id="picInput" hidden accept="image/*" multiple>
+    <input type="file" id="vidInput" hidden accept="video/*" multiple>
+
+    <div id="uploadStatusModal">
+        <div class="up-box">
+            <span id="upPercent">0%</span>
+            <h3 id="upText" style="font-size: 14px; color: #fff; margin-bottom: 5px;">Inatayarisha...</h3>
+            <p id="upFileName" style="font-size: 10px; color: #666; margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></p>
+            <div class="progress-container"><div id="progressBar" class="progress-bar-fill"></div></div>
+            <div class="upload-details"><span id="upLoaded">0 MB</span><span id="upTotal">0 MB</span></div>
+        </div>
+    </div>
+
+    <a href="index.html" class="home-btn"><i class="fas fa-home"></i></a>
+    <button class="settings-btn admin-only" onclick="openNav()"><i class="fas fa-bars"></i></button>
+
+    <div id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Imekamilika</span></div>
+
+    <div id="confirmModal" class="custom-modal">
+        <div class="modal-box">
+            <h2 id="modalTitle" style="color:var(--primary); font-family:'Cinzel Decorative';">Thibitisha</h2>
+            <p id="modalTxt" style="margin-top:10px; color:#888;"></p>
+            <div id="inputContainer"></div>
+            <div class="modal-btns">
+                <button class="m-btn btn-cancel" onclick="closeModal()">Ghairi</button>
+                <button class="m-btn" id="modalConfirmBtn"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox">
+        <span style="position:absolute; top:30px; right:30px; font-size:40px; cursor:pointer; z-index:100;" onclick="closeLightbox()">&times;</span>
+        <button class="lb-nav" style="left:20px;" onclick="changePhoto(-1)"><i class="fas fa-chevron-left"></i></button>
+        <img id="lbImg" src="">
+        <button class="lb-nav" style="right:20px;" onclick="changePhoto(1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <div class="side-panel" id="sideNav">
+        <h3 style="color:var(--primary); text-align:center; font-family:'Cinzel Decorative';">PIXIEST PRO</h3>
+        <div class="nav-divider">Quick Upload</div>
+        <div class="sidebar-upload-grid">
+            <div class="up-card-sidebar pic" onclick="document.getElementById('picInput').click()"><i class="fas fa-images"></i><span>Picha</span></div>
+            <div class="up-card-sidebar vid" onclick="document.getElementById('vidInput').click()"><i class="fas fa-video"></i><span>Video</span></div>
+        </div>
+        <div class="nav-divider">Settings</div>
+        <button class="nav-item" onclick="triggerEdit('title')"><i class="fas fa-edit"></i> Edit Jina</button>
+        <button class="nav-item" onclick="triggerEdit('date')"><i class="fas fa-calendar"></i> Edit Tarehe</button>
+        <button class="nav-item" onclick="startCoverSelect()"><i class="fas fa-image"></i> Set Album Cover</button>
+        <button class="nav-item" style="color:var(--danger); margin-top:20px;" onclick="triggerDeleteAlbum()"><i class="fas fa-trash"></i> Futa Album</button>
+        <button class="nav-item" style="margin-top:auto;" onclick="closeNav()">Funga</button>
+    </div>
+
+    <div id="mainDisplay" style="display:none;">
+        <header class="hero" id="heroBg">
+            <div class="hero-overlay"></div>
+            <div class="hero-header-flex">
+                <div class="identity-block">
+                    <h1 id="pTitle">---</h1>
+                    <div style="font-size: 11px; color: var(--primary); letter-spacing: 2px; margin-top:5px; font-weight: bold;"><span id="pDate">--</span></div>
+                </div>
+                <div class="mini-stats-wrapper">
+                    <a href="#photoSection" class="mini-card"><i class="fas fa-image" style="color:var(--primary)"></i><span class="val" id="miniPhotoCount">0</span><span class="lab">Pics</span></a>
+                    <div class="handle-card admin-only" onclick="document.getElementById('picInput').click()"><i class="fas fa-camera"></i><span style="font-size:8px; font-weight:bold; margin-top:4px;">ADD</span></div>
+                    <a href="#videoSection" class="mini-card"><i class="fas fa-play" style="color:var(--v-blue)"></i><span class="val" id="miniVideoCount">0</span><span class="lab">Video</span></a>
+                    <div class="handle-card video-handle admin-only" onclick="document.getElementById('vidInput').click()"><i class="fas fa-video"></i><span style="font-size:8px; font-weight:bold; margin-top:4px;">ADD</span></div>
+                </div>
+            </div>
+        </header>
+
+        <div id="videoSection">
+            <div class="section-label">Featured Videos</div>
+            <div id="vSlider" class="video-slider">
+                <div class="empty-video-msg" id="vEmptyMsg">Hakuna video kwenye album hii kwa sasa.</div>
+            </div>
+        </div>
+
+        <div id="photoSection">
+            <div class="section-label">Gallery</div>
+            <div id="pGrid" class="photo-grid flexible"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from "./firebase.js";
+        import { doc, onSnapshot, updateDoc, deleteDoc, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const WORKER_URL = "https://photographer.twahanyanza.workers.dev";
+        const R2_PUBLIC_URL = "https://pub-a9c5c9f0418f4234ad84f2e83756c064.r2.dev";
+
+        const params = new URLSearchParams(window.location.search);
+        const albumId = params.get('id');
+        const userRole = params.get('role');
+
+        let photoList = [];
+        let currentPhotoIdx = 0;
+        let isCoverMode = false;
+
+        window.showToast = (msg) => {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        };
+
+        const handleFileUpload = async (e, type) => {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            const modal = document.getElementById('uploadStatusModal');
+            modal.style.display = 'flex';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const cleanName = file.name.replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
+                const fileName = `fast_uploads/${albumId}/${Date.now()}_${cleanName}`;
+                const CHUNK_SIZE = 20 * 1024 * 1024; 
+                const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+                
+                document.getElementById('upTotal').innerText = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+                document.getElementById('upFileName').innerText = file.name;
+
+                for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                    const start = chunkIndex * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, file.size);
+                    const chunk = file.slice(start, end);
+                    document.getElementById('upText').innerText = `Inapakia ${i + 1}/${files.length}`;
+                    
+                    try {
+                        const response = await fetch(`${WORKER_URL}/?file=${fileName}&chunk=${chunkIndex}&total=${totalChunks}`, {
+                            method: 'PUT',
+                            body: chunk,
+                        });
+                        if (!response.ok) throw new Error("Connection failed");
+                        const percent = Math.round((end / file.size) * 100);
+                        document.getElementById('progressBar').style.width = percent + "%";
+                        document.getElementById('upPercent').innerText = percent + "%";
+                        document.getElementById('upLoaded').innerText = (end / (1024 * 1024)).toFixed(2) + " MB";
+                    } catch (err) {
+                        modal.style.display = 'none';
+                        return;
+                    }
+                }
+                const fileUrl = `${R2_PUBLIC_URL}/${fileName}`;
+                await updateDoc(doc(db, "albums", albumId), { [type]: arrayUnion(fileUrl) });
+            }
+            modal.style.display = 'none';
+            showToast("Imekamilika!");
+        };
+
+        document.getElementById('picInput').addEventListener('change', (e) => handleFileUpload(e, 'photos'));
+        document.getElementById('vidInput').addEventListener('change', (e) => handleFileUpload(e, 'videos'));
+
+        if(albumId) {
+            onSnapshot(doc(db, "albums", albumId), (snap) => {
+                if(!snap.exists()) return;
+                const data = snap.data();
+                photoList = data.photos || [];
+                const videoList = data.videos || [];
+                
+                document.getElementById('mainDisplay').style.display = 'block';
+                document.getElementById('pTitle').innerText = data.title;
+                document.getElementById('pDate').innerText = data.eventDate || "JAN 2026";
+                document.getElementById('miniPhotoCount').innerText = photoList.length;
+                document.getElementById('miniVideoCount').innerText = videoList.length;
+                
+                const cover = data.coverURL || (photoList.length > 0 ? photoList[0] : '');
+                document.getElementById('heroBg').style.backgroundImage = `url('${cover}')`;
+
+                const vSlider = document.getElementById('vSlider');
+                if(videoList.length > 0) {
+                    document.getElementById('vEmptyMsg').style.display = 'none';
+                    vSlider.innerHTML = videoList.map(url => {
+                        // Tunasafisha URL ili ipitie kwenye Worker kwanza
+                        const fileName = url.replace(R2_PUBLIC_URL + "/", "");
+                        const workerStreamUrl = `${WORKER_URL}/?file=${fileName}`;
+                        const safeUrlForPlayer = encodeURIComponent(workerStreamUrl);
+
+                        return `
+                            <div class="v-card">
+                                <video 
+                                    src="${workerStreamUrl}#t=0.5" 
+                                    preload="metadata" 
+                                    crossorigin="anonymous"
+                                    muted
+                                    playsinline
+                                    onclick="window.location.href='video-player.html?src=${safeUrlForPlayer}'">
+                                </video>
+                                <div style="position:absolute; bottom:15px; left:15px; pointer-events:none;">
+                                    <i class="fas fa-play-circle" style="font-size:30px; opacity:0.8; color:white;"></i>
+                                </div>
+                                ${userRole === 'admin' ? `
+                                    <div class="action-dots" onclick="event.stopPropagation(); triggerDeleteFile('${url}', 'videos')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </div>` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    vSlider.innerHTML = `<div class="empty-video-msg">Hakuna video hapa.</div>`;
+                }
+
+                document.getElementById('pGrid').innerHTML = photoList.map((url, i) => `
+                    <div class="media-card" onclick="handlePhotoClick(${i}, '${url}')">
+                        <img src="${url}" loading="lazy">
+                        ${userRole === 'admin' ? `<div class="action-dots" onclick="event.stopPropagation(); triggerDeleteFile('${url}', 'photos')"><i class="fas fa-trash-alt"></i></div>` : ''}
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.triggerDeleteFile = (url, type) => {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modalTitle').innerText = "Futa Faili";
+            document.getElementById('modalTxt').innerText = "Unataka kufuta kabisa?";
+            document.getElementById('inputContainer').innerHTML = "";
+            const btn = document.getElementById('modalConfirmBtn');
+            btn.innerText = "Ndio, Futa";
+            btn.className = "m-btn btn-danger";
+            modal.style.display = "flex";
+            btn.onclick = async () => {
+                await updateDoc(doc(db, "albums", albumId), { [type]: arrayRemove(url) });
+                closeModal();
+                showToast("Imefutwa!");
+            };
+        };
+
+        window.triggerEdit = (type) => {
+            closeNav();
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modalTitle').innerText = type === 'title' ? "Badili Jina" : "Badili Tarehe";
+            document.getElementById('inputContainer').innerHTML = `<input type="text" id="modalInput" placeholder="Andika hapa...">`;
+            const btn = document.getElementById('modalConfirmBtn');
+            btn.innerText = "Hifadhi";
+            btn.className = "m-btn btn-action";
+            modal.style.display = "flex";
+            btn.onclick = async () => {
+                const val = document.getElementById('modalInput').value;
+                if(val) {
+                    await updateDoc(doc(db, "albums", albumId), { [type === 'title' ? 'title' : 'eventDate']: val });
+                    closeModal();
+                    showToast("Imesasishwa!");
+                }
+            };
+        };
+
+        window.triggerDeleteAlbum = () => {
+            closeNav();
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modalTitle').innerText = "FUTA ALBUM!";
+            document.getElementById('modalTxt').innerText = "Huwezi kurudisha album hii!";
+            document.getElementById('inputContainer').innerHTML = "";
+            const btn = document.getElementById('modalConfirmBtn');
+            btn.innerText = "Futa Kila Kitu";
+            btn.className = "m-btn btn-danger";
+            modal.style.display = "flex";
+            btn.onclick = async () => {
+                await deleteDoc(doc(db, "albums", albumId));
+                window.location.href = "index.html";
+            };
+        };
+
+        window.closeModal = () => document.getElementById('confirmModal').style.display = 'none';
+
+        window.handlePhotoClick = (index, url) => {
+            if(isCoverMode) {
+                updateDoc(doc(db, "albums", albumId), { coverURL: url });
+                isCoverMode = false;
+                showToast("Cover Imewekwa!");
+            } else {
+                currentPhotoIdx = index;
+                document.getElementById('lbImg').src = url;
+                document.getElementById('lightbox').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.changePhoto = (dir) => {
+            currentPhotoIdx = (currentPhotoIdx + dir + photoList.length) % photoList.length;
+            document.getElementById('lbImg').src = photoList[currentPhotoIdx];
+        };
+
+        window.closeLightbox = () => { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; };
+        
+        if(userRole === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        }
+        window.openNav = () => document.getElementById('sideNav').classList.add('active');
+        window.closeNav = () => document.getElementById('sideNav').classList.remove('active');
+        window.startCoverSelect = () => { closeNav(); isCoverMode = true; showToast("Gusa picha unayotaka!"); };
+    </script>
+</body>
+</html>

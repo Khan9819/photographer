@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & Settings - Pixiest Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #f7a800; --bg: #0a0a0a; --card: #141414; --danger: #ff4d4d; --video: #0084ff; --success: #2ecc71; --whatsapp: #25d366; --border-gold: rgba(247, 168, 0, 0.25); }
+        
+        * { box-sizing: border-box; }
+        body { 
+            background: var(--bg); color: #fff; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; display: flex; height: 100vh; overflow: hidden; 
+        }
+        
+        /* Layout Optimization */
+        .upload-area { flex: 1; padding: 25px; overflow-y: auto; border-right: 1px solid #222; scroll-behavior: smooth; }
+        .settings-sidebar { width: 340px; background: var(--card); padding: 25px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 850px) {
+            body { flex-direction: column; overflow-y: auto; height: auto; }
+            .upload-area { border-right: none; border-bottom: 1px solid #222; overflow-y: visible; }
+            .settings-sidebar { width: 100%; height: auto; }
+        }
+
+        /* Stats Header */
+        .stats-bar { display: flex; gap: 15px; margin-bottom: 20px; background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333; }
+        .stat-item { flex: 1; text-align: center; }
+        .stat-item small { display: block; font-size: 10px; color: #555; text-transform: uppercase; font-weight: 800; }
+        .stat-item span { font-size: 16px; font-weight: 700; color: var(--primary); }
+
+        .grid-header { font-size: 11px; font-weight: 800; color: #555; text-transform: uppercase; letter-spacing: 2px; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 10px; }
+        .grid-header span { flex: 1; height: 1px; background: #222; }
+
+        .live-preview-box {
+            width: 100%; height: 280px; background: #000; border: 2px solid #333;
+            border-radius: 15px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .live-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .drop-zone {
+            border: 2px dashed #333; padding: 40px; text-align: center; border-radius: 20px;
+            cursor: pointer; background: rgba(255,255,255,0.02); transition: 0.3s;
+        }
+        .drop-zone:hover { border-color: var(--primary); background: rgba(247, 168, 0, 0.05); }
+
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .preview-card { position: relative; border-radius: 12px; aspect-ratio: 1/1; overflow: hidden; border: 2px solid #222; background: #000; cursor: pointer; transition: 0.2s; }
+        .preview-card:hover { transform: scale(0.98); }
+        .preview-card img, .preview-card video { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+        .preview-card.is-cover { border-color: var(--primary); box-shadow: 0 0 15px rgba(247,168,0,0.3); }
+        .preview-card.is-cover img { opacity: 1; }
+        
+        .video-label { position: absolute; bottom: 8px; left: 8px; background: var(--video); color: #fff; font-size: 9px; padding: 3px 7px; border-radius: 4px; font-weight: bold; }
+        .delete-btn { position: absolute; top: 6px; right: 6px; background: var(--danger); color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        input, select { background: #000; border: 1px solid #333; padding: 14px; border-radius: 12px; color: #fff; width: 100%; outline: none; font-size: 14px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); }
+
+        .custom-alert {
+            position: fixed; bottom: 20px; right: 20px; background: var(--danger);
+            padding: 15px 25px; border-radius: 10px; display: none; z-index: 10000;
+            animation: slideIn 0.3s ease; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        .upload-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999;
+        }
+        .progress-bar { width: 320px; height: 6px; background: #222; border-radius: 10px; margin-top: 25px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--primary); transition: 0.4s; }
+
+        /* SUCCESS MODAL */
+        .success-card { background: #111; border: 1px solid var(--border-gold); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; display: none; text-align: center; animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .share-btn { padding: 15px; border-radius: 12px; border: none; font-weight: 700; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px; text-decoration: none; }
+        .btn-copy { background: #222; color: #fff; }
+        .btn-wa { background: var(--whatsapp); color: #fff; }
+
+        .btn-publish {
+            background: var(--primary); color: #000; padding: 18px; border: none;
+            border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 15px; width: 100%;
+            transition: 0.3s;
+        }
+        .btn-publish:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(247,168,0,0.3); }
+        .btn-publish:disabled { background: #222; color: #444; cursor: not-allowed; transform: none; }
+    </style>
+</head>
+<body>
+
+    <div class="custom-alert" id="customAlert"></div>
+
+    <div class="upload-overlay" id="uploadOverlay">
+        <div id="uploadingUI" style="text-align: center;">
+            <div id="progressPercent" style="font-size: 80px; font-weight: 900; color: var(--primary);">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <p id="uploadStatus" style="margin-top: 20px; color: #fff; font-size: 16px; font-weight: 500;">Inatayarisha...</p>
+            <p id="uploadDetail" style="margin-top: 5px; color: #555; font-size: 12px;">0 / 0 Files</p>
+        </div>
+
+        <div class="success-card" id="successUI">
+            <div style="width: 70px; height: 70px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <i class="fas fa-check" style="font-size: 30px; color: #fff;"></i>
+            </div>
+            <h2 style="font-family: 'Plus Jakarta Sans'; margin-bottom: 5px;">Hongera Album iko hewani!</h2>
+            <p id="finalAlbumLabel" style="color: var(--primary); font-weight: 700; margin-bottom: 25px;"></p>
+            
+            <button class="share-btn btn-copy" id="copyLinkBtn"><i class="fas fa-link"></i> Nakili Link ya Album</button>
+            <button class="share-btn btn-wa" id="whatsappBtn"><i class="fab fa-whatsapp"></i> Tuma WhatsApp kwa Mteja</button>
+            
+            <a href="my-albums.html" style="display:block; margin-top:20px; color:#555; text-decoration:none; font-size:12px;">Rudi Kwenye Maktaba</a>
+        </div>
+    </div>
+
+    <div class="upload-area">
+        <div style="margin-bottom: 30px;">
+            <h2 id="albumDisplayName" style="color: var(--primary); margin: 0; font-size: 28px;">New Album</h2>
+            <p id="sectionDisplayName" style="color: #555; font-size: 11px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;"></p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item"><small>Media</small><span id="statCount">0</span></div>
+            <div class="stat-item"><small>Size</small><span id="statSize">0.0 MB</span></div>
+            <div class="stat-item"><small>R2 Status</small><span style="color: var(--success);">Online</span></div>
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display: none;">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
+            <p style="margin:0; font-size: 16px; font-weight: 600;">Gusa hapa au buruta faili</p>
+            <p style="margin:5px 0 0 0; font-size: 12px; color: #555;">Inapokea MP4, JPG, PNG (Max 1600px)</p>
+        </div>
+
+        <div class="grid-header">Video Content <span id="videoCountText">(0)</span> <span></span></div>
+        <div class="preview-grid" id="videoGrid"></div>
+
+        <div class="grid-header">Photos <span id="photoCountText">(0)</span> <span></span></div>
+        <div class="preview-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="settings-sidebar">
+        <div>
+            <label style="font-size: 10px; color: var(--primary); font-weight: 800; letter-spacing: 1px; display: block; margin-bottom: 10px;">ALBUM COVER</label>
+            <div class="live-preview-box" id="livePreviewBox">
+                <div style="color:#444; font-size: 12px; text-align: center; padding: 20px;">Chagua picha iwe cover kwa kuigusa kwenye grid</div>
+            </div>
+        </div>
+
+        <div>
+            <label style="font-size:10px; color:var(--primary); font-weight:bold;">AINA YA VIDEO</label>
+            <select id="videoType">
+                <option value="none">Hapana, Picha Tu</option>
+                <option value="highlight">Highlight Video (Fupi)</option>
+                <option value="full">Full Movie / Documentary</option>
+            </select>
+        </div>
+
+        <div>
+            <label style="font-size:10px; color:var(--primary); font-weight:bold;">TAREHE YA TUKIO</label>
+            <input type="text" id="eventDateText" placeholder="Mfano: 20 Jan 2026">
+        </div>
+
+        <div style="background: rgba(247,168,0,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(247,168,0,0.1);">
+            <label style="font-size:10px; color:var(--primary); font-weight:bold;">DOWNLOAD PIN (OPTIONAL)</label>
+            <input type="number" id="downloadPin" placeholder="Weka PIN ya namba 4" style="margin-top: 8px;">
+            <p style="font-size: 10px; color: #555; margin-top: 8px;">Wateja wataitumia kudownload picha zao.</p>
+        </div>
+
+        <button class="btn-publish" id="publishBtn" disabled>Rusha Album Hewani</button>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase.js";
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const WORKER_URL = "https://photographer.twahanyanza.workers.dev";
+        const R2_PUBLIC_URL = "https://pub-a9c5c9f0418f4234ad84f2e83756c064.r2.dev";
+
+        const params = new URLSearchParams(window.location.search);
+        const section = params.get('section') || "General";
+        const albumTitle = params.get('album') || "New Album";
+        
+        document.getElementById('albumDisplayName').innerText = albumTitle;
+        document.getElementById('sectionDisplayName').innerText = section;
+
+        const fileInput = document.getElementById('fileInput');
+        const photoGrid = document.getElementById('photoGrid');
+        const videoGrid = document.getElementById('videoGrid');
+        const publishBtn = document.getElementById('publishBtn');
+        const livePreviewBox = document.getElementById('livePreviewBox');
+        
+        let photoBuffer = []; 
+        let videoBuffer = [];
+        let coverFileId = null;
+
+        document.getElementById('eventDateText').value = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        document.getElementById('dropZone').onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach((file) => {
+                const id = Math.random().toString(36).substr(2, 9);
+                const url = URL.createObjectURL(file);
+                const isVideo = file.type.startsWith('video/');
+                
+                const card = document.createElement('div');
+                card.className = 'preview-card';
+                card.id = `card_${id}`;
+
+                if(isVideo) {
+                    card.innerHTML = `<button class="delete-btn"><i class="fas fa-times"></i></button><video muted playsinline><source src="${url}#t=0.5"></video><div class="video-label">MP4</div>`;
+                    videoBuffer.push({ id, data: file, size: file.size, url });
+                    videoGrid.appendChild(card);
+                } else {
+                    card.innerHTML = `<button class="delete-btn"><i class="fas fa-times"></i></button><img src="${url}">`;
+                    photoBuffer.push({ id, data: file, size: file.size, url });
+                    photoGrid.appendChild(card);
+                    card.onclick = () => setCover(id);
+                }
+
+                card.querySelector('.delete-btn').onclick = (ex) => {
+                    ex.stopPropagation();
+                    URL.revokeObjectURL(url);
+                    if(isVideo) videoBuffer = videoBuffer.filter(v => v.id !== id);
+                    else {
+                        photoBuffer = photoBuffer.filter(p => p.id !== id);
+                        if(coverFileId === id) { coverFileId = null; livePreviewBox.innerHTML = `Chagua cover`; }
+                    }
+                    card.remove();
+                    updateUI();
+                };
+            });
+            if(photoBuffer.length > 0 && !coverFileId) setCover(photoBuffer[0].id);
+            updateUI();
+            fileInput.value = "";
+        };
+
+        function setCover(id) {
+            const photo = photoBuffer.find(p => p.id === id);
+            if(!photo) return;
+            coverFileId = id;
+            document.querySelectorAll('#photoGrid .preview-card').forEach(c => c.classList.remove('is-cover'));
+            document.getElementById(`card_${id}`).classList.add('is-cover');
+            livePreviewBox.innerHTML = `<img src="${photo.url}">`;
+        }
+
+        function updateUI() {
+            const totalCount = photoBuffer.length + videoBuffer.length;
+            const totalSize = [...photoBuffer, ...videoBuffer].reduce((acc, curr) => acc + curr.size, 0);
+            document.getElementById('statCount').innerText = totalCount;
+            document.getElementById('statSize').innerText = (totalSize / (1024 * 1024)).toFixed(1) + " MB";
+            document.getElementById('photoCountText').innerText = `(${photoBuffer.length})`;
+            document.getElementById('videoCountText').innerText = `(${videoBuffer.length})`;
+            publishBtn.disabled = totalCount === 0;
+        }
+
+        function showAlert(msg, type = 'danger') {
+            const alert = document.getElementById('customAlert');
+            alert.innerText = msg; alert.style.background = type === 'danger' ? 'var(--danger)' : 'var(--success)';
+            alert.style.display = 'block'; setTimeout(() => { alert.style.display = 'none'; }, 4000);
+        }
+
+        async function compressImage(file) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1600; 
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+                };
+            });
+        }
+
+        publishBtn.onclick = async () => {
+            if(!auth.currentUser) return showAlert("Ingia kwanza!");
+            const overlay = document.getElementById('uploadOverlay');
+            overlay.style.display = 'flex';
+            publishBtn.disabled = true;
+
+            let uploadedPhotos = [];
+            let uploadedVideos = [];
+            let coverURL = "";
+            const totalFiles = photoBuffer.length + videoBuffer.length;
+            let currentUploaded = 0;
+
+            try {
+                for (let i = 0; i < photoBuffer.length; i++) {
+                    currentUploaded++;
+                    updateProgress(currentUploaded, totalFiles, `Picha ${i+1}...`);
+                    const blob = await compressImage(photoBuffer[i].data);
+                    const name = `albums/${auth.currentUser.uid}/${Date.now()}_img_${i}.jpg`;
+                    await fetch(`${WORKER_URL}/?file=${name}`, { method: 'PUT', body: blob });
+                    const finalUrl = `${R2_PUBLIC_URL}/${name}`;
+                    uploadedPhotos.push(finalUrl);
+                    if(photoBuffer[i].id === coverFileId) coverURL = finalUrl;
+                }
+
+                for (let i = 0; i < videoBuffer.length; i++) {
+                    currentUploaded++;
+                    updateProgress(currentUploaded, totalFiles, `Video ${i+1}...`);
+                    const name = `albums/${auth.currentUser.uid}/${Date.now()}_vid_${i}.mp4`;
+                    await fetch(`${WORKER_URL}/?file=${name}`, { method: 'PUT', body: videoBuffer[i].data });
+                    uploadedVideos.push(`${R2_PUBLIC_URL}/${name}`);
+                }
+
+                const docRef = await addDoc(collection(db, "albums"), {
+                    userId: auth.currentUser.uid,
+                    section, title: albumTitle,
+                    eventDate: document.getElementById('eventDateText').value,
+                    downloadPin: document.getElementById('downloadPin').value || "none",
+                    coverURL: coverURL || uploadedPhotos[0] || "",
+                    photos: uploadedPhotos, videos: uploadedVideos,
+                    videoType: document.getElementById('videoType').value,
+                    photoCount: uploadedPhotos.length,
+                    totalMB: document.getElementById('statSize').innerText,
+                    createdAt: serverTimestamp()
+                });
+
+                // ON SUCCESS
+                showSuccessUI(docRef.id, albumTitle);
+
+            } catch (e) {
+                console.error(e); overlay.style.display = 'none'; publishBtn.disabled = false;
+                showAlert("Kuna tatizo limetokea!");
+            }
+        };
+
+        function updateProgress(curr, total, msg) {
+            const perc = Math.round((curr / total) * 100);
+            document.getElementById('progressPercent').innerText = perc + "%";
+            document.getElementById('progressFill').style.width = perc + "%";
+            document.getElementById('uploadStatus').innerText = "Inapakia " + msg;
+            document.getElementById('uploadDetail').innerText = `${curr} / ${total} Faili`;
+        }
+
+        function showSuccessUI(albumId, title) {
+            document.getElementById('uploadingUI').style.display = 'none';
+            const successUI = document.getElementById('successUI');
+            successUI.style.display = 'block';
+            document.getElementById('finalAlbumLabel').innerText = title;
+
+            const albumLink = `${window.location.origin}/album.html?id=${albumId}`;
+
+            document.getElementById('copyLinkBtn').onclick = () => {
+                navigator.clipboard.writeText(albumLink);
+                showAlert("Link imekopishwa!", "success");
+            };
+
+            document.getElementById('whatsappBtn').onclick = () => {
+                const msg = `Habari! Album yako ya picha "${title}" imekamilika. Unaweza kuiona na kudownload hapa: ${albumLink}`;
+                window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            };
+        }
+    </script>
+</body>
+</html>

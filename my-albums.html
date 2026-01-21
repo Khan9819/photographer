@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Albums - Pixiest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f7a800;
+            --bg-dark: #0a0a0a;
+            --card-bg: #141414;
+            --danger: #ff4444;
+            --success: #28a745;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+        body { background: var(--bg-dark); color: #fff; display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 260px; background: #000; border-right: 1px solid rgba(247, 168, 0, 0.1);
+            display: flex; flex-direction: column; padding: 30px 20px; position: fixed; height: 100vh;
+        }
+
+        .main-content { margin-left: 260px; flex: 1; padding: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        
+        .section-group { margin-bottom: 50px; }
+        .section-title { 
+            font-size: 14px; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; 
+            margin-bottom: 20px; border-left: 3px solid var(--primary); padding-left: 15px;
+        }
+
+        .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+
+        .album-card {
+            background: var(--card-bg); border-radius: 15px; overflow: hidden; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.05); position: relative;
+        }
+
+        .album-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .card-actions {
+            position: absolute; top: 10px; left: 10px; display: flex; gap: 8px;
+            z-index: 100; opacity: 0; transition: 0.3s;
+        }
+        .album-card:hover .card-actions { opacity: 1; }
+
+        .action-btn {
+            width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s;
+        }
+        .btn-delete { background: rgba(255, 68, 68, 0.9); }
+        .btn-share { background: var(--primary); color: #000; }
+        .action-btn:hover { transform: scale(1.1); }
+
+        .clickable-area { cursor: pointer; display: block; }
+        .album-cover { width: 100%; height: 200px; background: #222; object-fit: cover; }
+        .album-info { padding: 15px; }
+        .album-info h4 { font-size: 16px; margin-bottom: 5px; color: #fff; }
+        .album-info p { font-size: 12px; color: #888; }
+
+        .photo-count {
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+            padding: 5px 10px; border-radius: 8px; font-size: 10px; color: var(--primary); font-weight: bold;
+            z-index: 10;
+        }
+
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 12px; padding: 16px; position: fixed;
+            z-index: 5000; left: 50%; bottom: 30px; transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-weight: 500;
+        }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        .modal {
+            display: none; position: fixed; z-index: 3000; inset: 0;
+            background: rgba(0,0,0,0.85); align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1a1a1a; padding: 30px; border-radius: 24px; width: 95%; max-width: 380px;
+            text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-confirm-delete { background: var(--danger); color: white; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; margin-top: 15px; }
+        .btn-cancel { background: #333; color: white; padding: 12px; border-radius: 12px; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
+
+        .share-grid { display: grid; gap: 15px; margin-top: 25px; }
+        .share-option {
+            padding: 15px; border-radius: 15px; border: none; cursor: pointer;
+            font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 15px; transition: 0.2s;
+        }
+        .opt-wa { background: #25d366; color: white; }
+        .opt-copy { background: #fff; color: #000; }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        .loader { text-align: center; padding: 50px; color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div style="font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 50px;">PIXIEST</div>
+        <nav>
+            <a href="index.html" style="padding:15px; color:#ccc; text-decoration:none; display:flex; align-items:center; gap:15px; border-radius:12px; margin-bottom:10px;">
+                <i class="fas fa-th-large"></i> <span>Dashboard</span>
+            </a>
+            <a href="#" style="padding:15px; background: rgba(247, 168, 0, 0.1); color:var(--primary); text-decoration:none; display:flex; align-items:center; gap:15px; border-radius:12px;">
+                <i class="fas fa-images"></i> <span>My Albums</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div>
+                <h2 style="font-size: 28px;">Maktaba ya Kazi</h2>
+                <p style="color: #666; font-size: 14px;">Dhibiti album zako hapa.</p>
+            </div>
+            <a href="index.html" style="background:var(--primary); color:#000; padding:12px 20px; border-radius:12px; text-decoration:none; font-weight:700;"><i class="fas fa-plus"></i> NEW ALBUM</a>
+        </div>
+
+        <div id="albumsContainer">
+            <div class="loader"><i class="fas fa-spinner fa-spin"></i> Tunapakia...</div>
+        </div>
+    </div>
+
+    <div id="toast">Ujumbe...</div>
+
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color:var(--primary)">Share Gallery</h3>
+            <p style="color:#888; font-size:13px; margin-top:5px;">Chagua namna ya kumtumia mteja</p>
+            <div class="share-grid">
+                <button id="waBtn" class="share-option opt-wa"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button id="cpBtn" class="share-option opt-copy"><i class="fas fa-link"></i> Nakili Link (Copy)</button>
+            </div>
+            <button onclick="closeModal('shareModal')" class="btn-cancel">Funga</button>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div style="color:var(--danger); font-size: 40px; margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3>Futa Album?</h3>
+            <p style="color:#888; font-size:14px; margin-top:10px;">Picha zote zitafutwa kabisa na kitendo hiki hakiwezi kurudishwa.</p>
+            <button id="confirmDeleteBtn" class="btn-confirm-delete">NDIO, FUTA KABISA</button>
+            <button onclick="closeModal('deleteModal')" class="btn-cancel">GHAIRI</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, getDocs, orderBy, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const container = document.getElementById("albumsContainer");
+        const WORKER_URL = "https://photographer.twahanyanza.workers.dev";
+        let activeLink = "";
+
+        const notify = (msg, bg = "#333") => {
+            const t = document.getElementById("toast");
+            t.innerText = msg;
+            t.style.backgroundColor = bg;
+            t.className = "show";
+            setTimeout(() => t.className = "", 3000);
+        };
+
+        window.closeModal = (id) => document.getElementById(id).style.display = "none";
+
+        window.openShare = (event, albumId) => {
+            event.stopPropagation();
+            activeLink = `${window.location.origin}/gallery.html?id=${albumId}`;
+            document.getElementById("shareModal").style.display = "flex";
+
+            document.getElementById("waBtn").onclick = () => {
+                const text = encodeURIComponent(`Habari, pakua picha zako hapa: ${activeLink}`);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+                closeModal('shareModal');
+            };
+
+            document.getElementById("cpBtn").onclick = () => {
+                navigator.clipboard.writeText(activeLink);
+                notify("✅ Link imekopiwa!", "#28a745");
+                closeModal('shareModal');
+            };
+        };
+
+        window.handleDelete = (event, albumId, photos) => {
+            event.stopPropagation();
+            const dModal = document.getElementById("deleteModal");
+            dModal.style.display = "flex";
+
+            document.getElementById("confirmDeleteBtn").onclick = async () => {
+                closeModal('deleteModal');
+                notify("⏳ Inafuta... tafadhali subiri", "#444");
+
+                try {
+                    if(photos && photos.length > 0) {
+                        const deletePromises = photos.map(url => {
+                            try {
+                                const urlObj = new URL(url);
+                                const key = urlObj.pathname.substring(1);
+                                return fetch(`${WORKER_URL}/?file=${key}`, { method: 'DELETE' });
+                            } catch(e) { return Promise.resolve(); }
+                        });
+                        await Promise.all(deletePromises);
+                    }
+
+                    await deleteDoc(doc(db, "albums", albumId));
+                    notify("✅ Imefutwa kikamilifu", "#ff4444");
+                    setTimeout(() => window.location.reload(), 1500);
+                } catch (err) {
+                    notify("❌ Hitilafu imetokea", "#ff4444");
+                }
+            };
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = "login.html"; return; }
+
+            try {
+                const q = query(collection(db, "albums"), where("userId", "==", user.uid), orderBy("createdAt", "desc"));
+                const snap = await getDocs(q);
+                
+                if (snap.empty) {
+                    container.innerHTML = `<div style="text-align:center; padding:100px; color:#666;"><p>Hujatengeneza Album bado.</p></div>`;
+                    return;
+                }
+
+                const sections = {};
+                snap.forEach(d => {
+                    const data = d.data();
+                    const s = data.section || "ZINGINEZO";
+                    if (!sections[s]) sections[s] = [];
+                    sections[s].push({ id: d.id, ...data });
+                });
+
+                container.innerHTML = "";
+                for (const s in sections) {
+                    const group = document.createElement("div");
+                    group.className = "section-group";
+                    
+                    const cards = sections[s].map(album => {
+                        const cover = album.coverURL || (album.photos ? album.photos[0] : 'https://placehold.co/600x400?text=No+Cover');
+                        const photoList = JSON.stringify(album.photos || []);
+
+                        return `
+                        <div class="album-card">
+                            <div class="card-actions">
+                                <button class="action-btn btn-delete" onclick='handleDelete(event, "${album.id}", ${photoList})'>
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button class="action-btn btn-share" onclick='openShare(event, "${album.id}")'>
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                            <div class="clickable-area" onclick="window.location.href='gallery.html?id=${album.id}'">
+                                <div class="photo-count">${album.photos ? album.photos.length : 0} Picha</div>
+                                <img src="${cover}" class="album-cover">
+                                <div class="album-info">
+                                    <h4>${album.title}</h4>
+                                    <p><i class="far fa-calendar-alt"></i> ${album.createdAt ? new Date(album.createdAt.toDate()).toLocaleDateString() : 'Leo'}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join("");
+
+                    group.innerHTML = `<h3 class="section-title">${s}</h3><div class="album-grid">${cards}</div>`;
+                    container.appendChild(group);
+                }
+            } catch (e) { console.error(e); }
+        });
+    </script>
+</body>
+</html>
